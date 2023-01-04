@@ -4,6 +4,6 @@
 
 
 
-A Cloud Formation template to create this:
+A Cloud Formation template to create this infrastructure:
 
 ![alt text](https://github.com/otammato/project3_vpc_ec2_as_nat_igw/blob/main/Project3.png?raw=true)
