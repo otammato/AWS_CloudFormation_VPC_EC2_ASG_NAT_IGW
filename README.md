@@ -77,12 +77,14 @@ The SecurityGroupIngress section is where the inbound traffic is controlled and 
 Here is an example of how you can use the aws cloudformation create-stack command to create a new stack named "my-stack" using a YAML-formatted CloudFormation template file located at "path/to/template.yaml".
 
 It is important to remember that the file:// prefix is required for the --template-body option when specifying a file path.
+<br>
 <pre>aws cloudformation create-stack \
     --stack-name my-stack \
     --template-body file://path/to/template.yaml \
 </pre>
 <br><br>
 Here is an example of command to delete a CloudFormation stack named "my-stack". The aws cloudformation delete-stack command is used to delete a specified CloudFormation stack and all its associated resources.
+<br>
 <pre>aws cloudformation delete-stack --stack-name my-stack
 </pre>
 <br><br>
