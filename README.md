@@ -23,11 +23,11 @@ Following the "AWSTemplateFormatVersion" there is the "Parameters" section, This
 
 "ImageID" is a parameter of type "AWS::SSM::Parameter::ValueAWS::EC2::Image::Id". This parameter is used to specify the ID of the EC2 image to use when creating the EC2 instance. The default value for this parameter is "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2", which is the latest Amazon Linux AMI (Amazon Machine Image) available at the time the CloudFormation stack is executed.
 
-the "Parameters" section sets up the parameters that are expected to be passed when the CloudFormation stack is created, these parameters will be used later on in the stack to create resources.
+This "Parameters" section sets up the parameters that are expected to be passed when the CloudFormation stack is created, these parameters will be used later on in the stack to create resources.
 
 
 
-The Resources section is where the main components of the VPC are defined. It creates the following resources:
+Next, follows the "Resources section where the main components of the VPC are defined. It creates the following resources:
 
 1. "VPC" is a resource of type "AWS::EC2::VPC", which creates a Virtual Private Cloud (VPC) in the AWS account. The VPC has a CIDR block of 10.0.0.0/16, EnableDnsSupport and EnableDnsHostnames are set to true, this means that the domain name server (DNS) hostnames are enabled for the VPC, and the VPC is configured to resolve public DNS hostnames to IP addresses.
 
