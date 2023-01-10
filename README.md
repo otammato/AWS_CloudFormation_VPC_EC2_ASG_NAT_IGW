@@ -73,7 +73,9 @@ The SecurityGroupIngress section is where the inbound traffic is controlled and 
 21. The autoscaling group, launch configuration and target group are used together to automatically increase or decrease the number of instances based on the traffic demand. The Target group is used to distribute the traffic across all the healthy instances and it ensures that the traffic is only sent to healthy instances
 
 
-to launch this template from with AWS CLI use can this command:
+Here is an example of how you can use the aws cloudformation create-stack command to create a new stack named "my-stack" using a YAML-formatted CloudFormation template file located at "path/to/template.yaml".
+
+It is important to remember that the file:// prefix is required for the --template-body option when specifying a file path.
 <pre>aws cloudformation create-stack \
     --stack-name my-stack \
     --template-body file://path/to/template.yaml \
