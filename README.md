@@ -72,7 +72,7 @@ The SecurityGroupIngress section is where the inbound traffic is controlled and 
 20. TargetGroup: This resource creates a Target Group, which is used to route traffic to one or more instances in an Auto Scaling group. It defines health check parameters for the instances, and also the protocol and port to be used. The HealthCheckIntervalSeconds, HealthCheckPath, HealthCheckProtocol, HealthyThresholdCount, UnhealthyThresholdCount, Port, Protocol and VpcId properties are set accordingly.
 
 21. The autoscaling group, launch configuration and target group are used together to automatically increase or decrease the number of instances based on the traffic demand. The Target group is used to distribute the traffic across all the healthy instances and it ensures that the traffic is only sent to healthy instances
-
+<br><br><br>
 
 Here is an example of how you can use the aws cloudformation create-stack command to create a new stack named "my-stack" using a YAML-formatted CloudFormation template file located at "path/to/template.yaml".
 
