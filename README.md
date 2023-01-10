@@ -80,5 +80,9 @@ It is important to remember that the file:// prefix is required for the --templa
     --stack-name my-stack \
     --template-body file://path/to/template.yaml \
 </pre>
-
-
+<br><br>
+Here is an example of command to delete a CloudFormation stack named "my-stack". The aws cloudformation delete-stack command is used to delete a specified CloudFormation stack and all its associated resources.
+<pre>aws cloudformation delete-stack --stack-name my-stack
+</pre>
+<br><br>
+Also, be careful while using this command, as it will permanently delete all the resources and data associated with the stack, which may cause data loss.
