@@ -44,5 +44,11 @@ The Resources section is where the main components of the VPC are defined. It cr
 
 8. "PublicRoute" : This resource establishes a route for public traffic to any IPv4 address. It has the type "AWS::EC2::Route" and it depends on the PublicRouteTable and InternetGateway resources. Its properties include the DestinationCidrBlock of 0.0.0.0/0, meaning that it allows traffic from any IP address, and the GatewayId, which is the Internet Gateway, and the RouteTableId is the PublicRouteTable. The route allows incoming traffic to reach the internet via the Internet Gateway that was created earlier. It routes traffic that is destined for the Internet to the Internet Gateway.
 
-10. "VPCSecurityGroup", with a description "Security group for VPC", associated with the VPC created earlier using the VpcId property.
+9. "VPCSecurityGroup", with a description "Security group for VPC", associated with the VPC created earlier using the VpcId property.
 The SecurityGroupIngress section is where the inbound traffic is controlled and defined by a set of rules. It has four rules, the first rule allows incoming traffic on TCP port 22 (for SSH access), the second allows incoming traffic on TCP port 80 (for HTTP access), the third one allows all incoming traffic to all TCP ports and the fourth one allows incoming traffic to all ICMP protocol, that is pings. All of these rules allows incoming traffic from any IP address (0.0.0.0/0) in CIDR notation, which means any IP address is able to connect to these ports on the instances associated with this security group.
+
+10. "EC2 instance" in a PublicSubnet, and uses the UserData property to specify a script that installs the Apache web server. The script is passed to the instance as base64 encoded data, and is executed when the instance starts up.
+
+The script first runs the command "yum update -y" which updates all the packages to the latest version. Then it runs "yum install -y httpd" to install the Apache web server. After installation, the script then updates the default index page of the server and enable and start the httpd service.
+
+11. "Elastic IP" (EIP) resource, which assigns a static IP address to the EC2 instance. The EIP is associated with the VPC, and the InstanceId property is set to the ID of the EC2 instance created earlier, so the EIP is associated with the EC2 instance.
