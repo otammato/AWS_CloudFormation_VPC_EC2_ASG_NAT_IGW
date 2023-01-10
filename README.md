@@ -50,3 +50,15 @@ The SecurityGroupIngress section is where the inbound traffic is controlled and 
 10. "EC2 instance" in a PublicSubnet, and uses the UserData property to specify a script that installs the Apache web server. The script is passed to the instance as base64 encoded data, and is executed when the instance starts up.<br>The script first runs the command "yum update -y" which updates all the packages to the latest version. Then it runs "yum install -y httpd" to install the Apache web server. After installation, the script then updates the default index page of the server and enable and start the httpd service.
 
 11. "Elastic IP" (EIP) resource, which assigns a static IP address to the EC2 instance. The EIP is associated with the VPC, and the InstanceId property is set to the ID of the EC2 instance created earlier, so the EIP is associated with the EC2 instance.
+
+12. PrivateRouteTable: This resource creates a route table for the private subnet. The route table is associated with the VPC specified in the VpcId property.
+
+13. PrivateRTAssociation: This resource associates the private route table with the private subnet. The RouteTableId property is set to the ID of the private route table created earlier, and the SubnetId property is set to the ID of the private subnet.
+
+14. ElasticIPforNAT: This resource creates an Elastic IP address for the NAT gateway. An Elastic IP is a static, public IPv4 address that you can allocate to your AWS account, and then associate with an instance or a network interface. The EIP is associated with the VPC and the domain is set to vpc
+
+15. NatGateway: This resource creates a NAT gateway, which is a VPC component that enables instances in a private subnet to connect to the Internet or other AWS services, but prevent the Internet from initiating connections with those instances. The AllocationId property is set to the allocation ID of the Elastic IP created earlier, and the SubnetId property is set to the ID of the public subnet.
+
+16. RouteNatGateway: This resource creates a route in the private route table that routes Internet-bound traffic to the NAT gateway. The DestinationCidrBlock property is set to '0.0.0.0/0' to indicate that the route applies to all IP addresses, the NatGatewayId property is set to the ID of the NAT gateway created earlier and the RouteTableId property is set to the ID of the private route table.
+
+In this way, all the traffic that originates from the instances in the private subnet will use the NAT Gateway and the Elastic IP to have internet access
