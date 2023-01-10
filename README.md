@@ -33,3 +33,13 @@ The Resources section is where the main components of the VPC are defined. It cr
 2. "InternetGateway" is a resource of type "AWS::EC2::InternetGateway", which creates an Internet Gateway object that represents the VPC. The Internet Gateway enables communication between instances in the VPC and the Internet.
 
 3. "VPCGatewayAttachment" is a resource of type "AWS::EC2::VPCGatewayAttachment" which connects the created Internet Gateway to the VPC. It has properties that specify the VpcId, using the !Ref function to reference the previously created VPC, and the InternetGatewayId, which also references the InternetGateway created earlier.
+
+4. "PrivateSubnet": This resource creates a private subnet inside the VPC and it is of type "AWS::EC2::Subnet". Properties include the VPC id, CidrBlock of 10.0.2.0/24 and availability zone, selected using !Select function and the !GetAZs function which returns a list of availability zones in the region. This subnet also has a tag with "Name" and "Private Subnet"
+
+5. "PublicSubnet": This resource creates a public subnet inside the VPC, it is of the same type "AWS::EC2::Subnet" like the private subnet. Properties include MapPublicIpOnLaunch set to true, which means that instances that are launched in this subnet will automatically get assigned a public IP address. It also has similar properties like private subnet such as VPC id, CidrBlock and availability zone . The subnet also has a tag with "Name" and "Public Subnet".
+
+6. "PublicRouteTable" : This resource creates a route table that routes traffic for the public subnet. It has the type "AWS::EC2::RouteTable" and it depends on the VPC resource.
+
+7. "PublicRouteTableAssociation" : This resource associates the public route table with the public subnet. It has the type "AWS::EC2::SubnetRouteTableAssociation", it depends on the public subnet and public route table resources, and it has properties that include the RouteTableId and SubnetId, using the !Ref function to reference the previously created resources.
+
+8. "PublicRoute" : This resource establishes a route for public traffic to any IPv4 address. It has the type "AWS::EC2::Route" and it depends on the PublicRouteTable and InternetGateway resources. Its properties include the DestinationCidrBlock of 0.0.0.0/0, meaning that it allows traffic from any IP address, and the GatewayId, which is the Internet Gateway, and the RouteTableId is the PublicRouteTable. The route allows incoming traffic to reach the internet via the Internet Gateway that was created earlier. It routes traffic that is destined for the Internet to the Internet Gateway.
