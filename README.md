@@ -6,7 +6,6 @@
 
 A Cloud Formation template to create this infrastructure:
 
-![alt text](https://github.com/otammato/project3_vpc_ec2_as_nat_igw/blob/main/Screenshot 2023-01-10 at 18.21.41.png?raw=true)
 <p align="center">
   <img src="https://github.com/otammato/project3_vpc_ec2_as_nat_igw/blob/main/Screenshot 2023-01-10 at 18.21.41.png" />
 </p>
