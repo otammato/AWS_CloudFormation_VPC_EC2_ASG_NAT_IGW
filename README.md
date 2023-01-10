@@ -60,17 +60,17 @@ The SecurityGroupIngress section is where the inbound traffic is controlled and 
 15. NatGateway: This resource creates a NAT gateway, which is a VPC component that enables instances in a private subnet to connect to the Internet or other AWS services, but prevent the Internet from initiating connections with those instances. The AllocationId property is set to the allocation ID of the Elastic IP created earlier, and the SubnetId property is set to the ID of the public subnet.
 
 16. RouteNatGateway: This resource creates a route in the private route table that routes Internet-bound traffic to the NAT gateway. The DestinationCidrBlock property is set to '0.0.0.0/0' to indicate that the route applies to all IP addresses, the NatGatewayId property is set to the ID of the NAT gateway created earlier and the RouteTableId property is set to the ID of the private route table.
-<br>In this way, all the traffic that originates from the instances in the private subnet will use the NAT Gateway and the Elastic IP to have internet access
+<br><br>In this way, all the traffic that originates from the instances in the private subnet will use the NAT Gateway and the Elastic IP to have internet access
 
-EC2Instance2: This resource creates an Elastic Compute Cloud (EC2) instance, but this time it is placed in the private subnet. It specifies the instance type, image ID, subnet, security group for the instance.
+17. EC2Instance2: This resource creates an Elastic Compute Cloud (EC2) instance, but this time it is placed in the private subnet. It specifies the instance type, image ID, subnet, security group for the instance.
 
-AutoscalingGroup: This resource creates an Auto Scaling group, which automatically increases or decreases the number of instances in response to changes in demand for your application. The VPCZoneIdentifier property is set to the ID of the public subnet and the LaunchConfigurationName property is set to the name of the launch configuration resource created later. The MinSize and MaxSize properties set the minimum and maximum number of instances that should be running in the group, respectively. TargetGroupARNs property is set to the ID of the target group resource created later.
+18. AutoscalingGroup: This resource creates an Auto Scaling group, which automatically increases or decreases the number of instances in response to changes in demand for your application. The VPCZoneIdentifier property is set to the ID of the public subnet and the LaunchConfigurationName property is set to the name of the launch configuration resource created later. The MinSize and MaxSize properties set the minimum and maximum number of instances that should be running in the group, respectively. TargetGroupARNs property is set to the ID of the target group resource created later.
 
-LaunchConfiguration: This resource creates a launch configuration, which describes all the settings for an instance when an Auto Scaling group launches it. It specifies the instance type, image ID, security group for the instance.
+19. LaunchConfiguration: This resource creates a launch configuration, which describes all the settings for an instance when an Auto Scaling group launches it. It specifies the instance type, image ID, security group for the instance.
 
-TargetGroup: This resource creates a Target Group, which is used to route traffic to one or more instances in an Auto Scaling group. It defines health check parameters for the instances, and also the protocol and port to be used. The HealthCheckIntervalSeconds, HealthCheckPath, HealthCheckProtocol, HealthyThresholdCount, UnhealthyThresholdCount, Port, Protocol and VpcId properties are set accordingly.
+20. TargetGroup: This resource creates a Target Group, which is used to route traffic to one or more instances in an Auto Scaling group. It defines health check parameters for the instances, and also the protocol and port to be used. The HealthCheckIntervalSeconds, HealthCheckPath, HealthCheckProtocol, HealthyThresholdCount, UnhealthyThresholdCount, Port, Protocol and VpcId properties are set accordingly.
 
-The autoscaling group, launch configuration and target group are used together to automatically increase or decrease the number of instances based on the traffic demand. The Target group is used to distribute the traffic across all the healthy instances and it ensures that the traffic is only sent to healthy instances
+21. The autoscaling group, launch configuration and target group are used together to automatically increase or decrease the number of instances based on the traffic demand. The Target group is used to distribute the traffic across all the healthy instances and it ensures that the traffic is only sent to healthy instances
 
 
 
