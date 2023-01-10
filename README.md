@@ -76,7 +76,7 @@ The SecurityGroupIngress section is where the inbound traffic is controlled and 
 to launch this template from with AWS CLI use can this command:
 <pre>aws cloudformation create-stack \
     --stack-name my-stack \
-    --template-body file://path/to/template.json \
+    --template-body file://path/to/template.yaml \
 </pre>
 
 
