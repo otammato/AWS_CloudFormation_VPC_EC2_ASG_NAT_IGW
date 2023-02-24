@@ -14,7 +14,287 @@ A Cloud Formation template to create this infrastructure:
 <details markdown=1><summary markdown="span">Details</summary>
 
 ``` tf
+AWSTemplateFormatVersion: 2010-09-09
 
+Parameters:
+  #KeyName: 
+    #Type: AWS::EC2::KeyPair::KeyName
+    #ConstraintDescription: KeyPair2
+    #Default: KeyPair2
+  
+  ImageID:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+
+Resources:
+
+  ###########
+  # Virtual Private Cloud
+  ###########
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  ###########
+  # InternetGateway
+  ###########
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties: {}
+
+  ###########
+  # Connect InternetGateway to VPC
+  ###########
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  ###########
+  # PrivateSubnet inside VPC
+  ###########
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      #MapPublicIpOnLaunch : true
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select 
+        - 1
+        - !GetAZs 
+          Ref: 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: Private Subnet
+
+  ###########
+  # PubliceSubnet inside VPC
+  ###########
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch : true
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select 
+        - 1
+        - !GetAZs 
+          Ref: 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: Public Subnet
+
+  ###########
+  # Public Route Table for VPC
+  ###########
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Public Route Table
+  
+  ###########
+  # Associate PublicRouteTable with PublicSubnet
+  ###########
+  PublicRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    DependsOn:
+      - PublicRouteTable
+      - PublicSubnet
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet
+
+  ###########
+  # Establish the public route for traffic to any IPv4 address
+  ###########
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - PublicRouteTable
+      - InternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref PublicRouteTable
+
+  ###########
+  # Create a security group allowing SSH and HTTP traffic
+  ###########
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: VPCSecurityGroup
+      GroupDescription: Security group for VPC
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+        
+
+  ###########
+  # Create an EC2 instance in PublicSubnet and uses 
+  # the UserData property to specify a script that installs the Apache web server.
+  ###########
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      #KeyName: !Ref KeyName
+      InstanceType: t2.micro
+      ImageId: !Ref ImageID
+      SubnetId: !Ref PublicSubnet
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      UserData:
+        "Fn::Base64":
+          "Fn::Join":
+            - ""
+            - - "#!/bin/bash\n"
+              - "yum update -y\n"
+              - "yum install -y httpd\n"
+              #- "service httpd start\n"
+              - "echo “Hello World” > /var/www/html/index.html\n"
+              - "systemctl start httpd\n"
+              - "systemctl enable httpd\n"
+
+  ###########
+  # Create a static IP for EC2 instance in PublicSubnet
+  ###########
+  ElasticIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: VPC
+      InstanceId: !Ref EC2Instance
+
+  ###########
+  # Create a route table for Private Subnet
+  ###########
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  ###########
+  # Associate a Private Subnet route table with a PrivateSubnet
+  ###########
+  PrivateRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet
+
+  ###########
+  # Create an ElasticIP for NATgateway
+  ###########
+  ElasticIPforNAT:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  
+  ###########
+  # Create a NATgateway
+  ###########
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIPforNAT.AllocationId
+      SubnetId: !Ref PublicSubnet
+
+  ###########
+  # Create a route for NATgateway
+  ###########
+  RouteNatGateway:
+    Type: AWS::EC2::Route
+    DependsOn: [ NatGateway ]
+    Properties:
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NatGateway
+      RouteTableId: !Ref PrivateRouteTable
+
+  ###########
+  # Create an EC2 instance in a PrivateSubnet
+  ###########
+  EC2Instance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      #KeyName: !Ref KeyName
+      InstanceType: t2.micro
+      ImageId: !Ref ImageID
+      SubnetId: !Ref PrivateSubnet
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+  
+  ###########
+  # Create an Autoscaling Group
+  ###########
+  AutoscalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PublicSubnet
+      LaunchConfigurationName: !Ref LaunchConfiguration
+      MinSize: 1
+      MaxSize: 5
+      TargetGroupARNs:
+        - !Ref TargetGroup
+
+  ###########
+  # Create a Launch configuration for Autoscaling Group
+  ###########
+  LaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      #KeyName: !Ref KeyName
+      ImageId: !Ref ImageID
+      InstanceType: t2.micro
+      SecurityGroups:
+        - !Ref SecurityGroup
+
+  
+  ###########
+  # Create a Target Group
+  ###########
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: /health
+      HealthCheckProtocol: HTTP
+      HealthyThresholdCount: 3
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 3
+      VpcId: !Ref VPC
+
+
+ 
+
+
+#aws cloudformation create-stack     --stack-name my-stack4     --template-body 
+#file:///mnt/vocwork2/ddd_v1_w_bwp_1446851/asn1142006_250/asn1142007_1/work/test.yml 
+
+#aws cloudformation delete-stack --stack-name my-stack
 ```
 </details>
 
