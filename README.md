@@ -11,6 +11,12 @@ A Cloud Formation template to create this infrastructure:
 </p>
 <br><br>
 
+<details markdown=1><summary markdown="span">Details</summary>
+
+``` tf
+
+```
+</details>
 
 This is a CloudFormation template written in YAML. It describes the creation of several AWS resources that make up a Virtual Private Cloud (VPC) environment.
 
