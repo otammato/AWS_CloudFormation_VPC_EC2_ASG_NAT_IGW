@@ -298,6 +298,9 @@ Resources:
 ```
 </details>
 
+
+<br><br>
+
 This is a CloudFormation template written in YAML. It describes the creation of several AWS resources that make up a Virtual Private Cloud (VPC) environment.
 
 
