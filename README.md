@@ -11,7 +11,7 @@ A Cloud Formation template to create this infrastructure:
 </p>
 <br><br>
 
-<details markdown=1><summary markdown="span">Details</summary>
+### <details markdown=1><summary markdown="span">Details</summary>
 
 ``` tf
 AWSTemplateFormatVersion: 2010-09-09
